@@ -1,1 +1,7 @@
-GET http://localhost:8080/containers
+### POST request to add Container
+POST http://localhost:8080/container
+Content-Type: application/json
+
+{
+  "name" : "tobi"
+}
