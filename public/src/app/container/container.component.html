@@ -1,0 +1,9 @@
+<div *ngIf="container !== undefined; else error">
+    <h1>{{container.name}}</h1>
+</div>
+
+<ng-template #error>
+    <div>
+        <h2>Could not load Container</h2>
+    </div>
+</ng-template>

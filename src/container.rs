@@ -1,5 +1,5 @@
 use std::sync::Mutex;
-use actix_web::{get, post, Responder};
+use actix_web::{get, HttpResponse, post};
 use actix_web::web::{Data, Json};
 use serde::{Deserialize, Serialize};
 
@@ -19,12 +19,10 @@ pub async fn get_all_containers(containers: Data<Containers>) -> String {
 }
 
 #[post("/container")]
-pub async fn add_container(containers: Data<Containers>, container: Json<Container>) -> impl Responder {
+pub async fn add_container(containers: Data<Containers>, container: Json<Container>) -> HttpResponse {
     let containers = &mut *containers.containers.lock().unwrap();
 
     containers.push(container.0);
 
-    println!("{}", containers.len());
-
-    ""
+    HttpResponse::Created().finish()
 }
