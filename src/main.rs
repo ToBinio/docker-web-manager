@@ -1,6 +1,7 @@
 mod container;
 
 use std::sync::Mutex;
+use actix_cors::Cors;
 use actix_files::{Files, NamedFile};
 use actix_web::{App, get, HttpServer, Result};
 use actix_web::middleware::Logger;
@@ -22,7 +23,10 @@ async fn main() -> std::io::Result<()> {
     });
 
     HttpServer::new(move || {
+        let cors = Cors::permissive();
+
         App::new()
+            .wrap(cors)
             .wrap(Logger::default())
             .app_data(containers.clone())
             .service(index)
