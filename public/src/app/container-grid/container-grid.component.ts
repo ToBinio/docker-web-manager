@@ -1,6 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {HttpClient} from "@angular/common/http";
-import {AddContainerWS, ContainerGet, MessageWS} from "../container";
+import {Container, MessageWS, UpdateStateContainerWS} from "../container";
 import {environment} from "../../environments/environment";
 
 @Component({
@@ -10,7 +10,7 @@ import {environment} from "../../environments/environment";
 })
 export class ContainerGridComponent implements OnInit {
 
-    containers: ContainerGet[] = []
+    containers: Container[] = []
 
     constructor(private http: HttpClient) {
     }
@@ -31,17 +31,26 @@ export class ContainerGridComponent implements OnInit {
 
                 switch (data.mode) {
                     case "new": {
-                        let request: AddContainerWS = data.data;
+                        let response: Container = data.data;
 
-                        this.containers.push({
-                            name: request.name
-                        })
+                        this.containers.push(response)
+                        break;
+                    }
+                    case "updateState": {
+                        let response: UpdateStateContainerWS = data.data;
 
+                        for (let container of this.containers) {
+                            if (container.uuid != response.uuid) continue
+
+                            container.state = response.state;
+                            break;
+                        }
+                        break;
                     }
                 }
             })
         })
-        this.http.get<ContainerGet[]>(environment.domain + "/containers").subscribe((data) => {
+        this.http.get<Container[]>(environment.domain + "/containers").subscribe((data) => {
             this.containers = data;
         });
     }
