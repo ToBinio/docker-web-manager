@@ -1,66 +1,33 @@
-use std::collections::HashMap;
 use std::time::{Duration, Instant};
-use actix::{Actor, ActorContext, ActorFutureExt, Addr, AsyncContext, Context, ContextFutureSpawner, fut, Handler, Recipient, Running, StreamHandler, WrapFuture};
+use actix::{Actor, ActorContext, ActorFutureExt, Addr, AsyncContext, ContextFutureSpawner, fut, Handler, Running, StreamHandler, WrapFuture};
 use actix_web::{Error, get, HttpRequest, HttpResponse};
 use actix_web::web::{Data, Payload};
 use actix_web_actors::ws;
 use actix_web_actors::ws::{Message, ProtocolError, WebsocketContext};
 use uuid::Uuid;
-use crate::websocket::messages::{Connect, Disconnect, WsMessage};
+use crate::websocket::connections::WsConnections;
+use crate::websocket::local_message::{Connect, Disconnect};
+use crate::websocket::ws_message::WsMessage;
 
 const HEARTBEAT_INTERVAL: Duration = Duration::from_secs(5);
 const CLIENT_TIMEOUT: Duration = Duration::from_secs(10);
 
 #[get("/ws")]
-pub async fn start_connection(req: HttpRequest, stream: Payload, connections: Data<Addr<WebsocketConnections>>) -> Result<HttpResponse, Error> {
+pub async fn start_connection(req: HttpRequest, stream: Payload, connections: Data<Addr<WsConnections>>) -> Result<HttpResponse, Error> {
     let ws = WebsocketConnection::new(connections.get_ref().clone());
 
     let resp = ws::start(ws, &req, stream)?;
     Ok(resp)
 }
 
-pub struct WebsocketConnections {
-    pub users: HashMap<Uuid, Recipient<WsMessage>>,
-}
-
-impl Actor for WebsocketConnections {
-    type Context = Context<Self>;
-}
-
-impl Handler<Disconnect> for WebsocketConnections {
-    type Result = ();
-
-    fn handle(&mut self, msg: Disconnect, _ctx: &mut Self::Context) -> Self::Result {
-        self.users.remove(&msg.id);
-    }
-}
-
-impl Handler<Connect> for WebsocketConnections {
-    type Result = ();
-
-    fn handle(&mut self, msg: Connect, _ctx: &mut Self::Context) -> Self::Result {
-        self.users.insert(msg.uuid, msg.addr);
-    }
-}
-
-impl Handler<WsMessage> for WebsocketConnections {
-    type Result = ();
-
-    fn handle(&mut self, msg: WsMessage, _ctx: &mut Self::Context) -> Self::Result {
-        self.users.iter().for_each(|user| {
-            user.1.do_send(WsMessage(msg.0.clone()));
-        })
-    }
-}
-
 pub struct WebsocketConnection {
     id: Uuid,
-    connections: Addr<WebsocketConnections>,
+    connections: Addr<WsConnections>,
     hb: Instant,
 }
 
 impl WebsocketConnection {
-    pub fn new(websocket_connections: Addr<WebsocketConnections>) -> WebsocketConnection {
+    pub fn new(websocket_connections: Addr<WsConnections>) -> WebsocketConnection {
         WebsocketConnection {
             id: Uuid::new_v4(),
             connections: websocket_connections,

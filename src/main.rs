@@ -8,8 +8,9 @@ use actix_files::{Files, NamedFile};
 use actix_web::{App, get, HttpServer, Result};
 use actix_web::middleware::Logger;
 use actix_web::web::Data;
-use crate::container::{add_container, Containers, get_all_containers};
-use crate::websocket::websocket::{start_connection, WebsocketConnections};
+use crate::container::containers::{add_container, Containers, get_all_containers};
+use crate::websocket::connection::{start_connection};
+use crate::websocket::connections::WsConnections;
 
 #[get("/")]
 async fn index() -> Result<NamedFile> {
@@ -21,7 +22,7 @@ async fn main() -> std::io::Result<()> {
     std::env::set_var("RUST_LOG", "actix_web=debug");
     env_logger::init();
 
-    let ws_connections = Data::new(WebsocketConnections {
+    let ws_connections = Data::new(WsConnections {
         users: Default::default()
     }.start());
 

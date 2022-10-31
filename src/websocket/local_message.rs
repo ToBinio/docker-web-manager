@@ -1,9 +1,6 @@
 use actix::{Message, Recipient};
 use uuid::Uuid;
-
-#[derive(Message)]
-#[rtype(result = "()")]
-pub struct WsMessage(pub String);
+use crate::websocket::ws_message::WsMessage;
 
 #[derive(Message)]
 #[rtype(result = "()")]
