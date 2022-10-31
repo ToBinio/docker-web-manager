@@ -506,6 +506,7 @@ dependencies = [
  "env_logger",
  "serde",
  "serde_json",
+ "tokio",
  "uuid",
 ]
 

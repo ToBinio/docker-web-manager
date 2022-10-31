@@ -20,7 +20,7 @@ pub async fn start_connection(req: HttpRequest, stream: Payload, connections: Da
 }
 
 pub struct WebsocketConnections {
-    pub(crate) users: HashMap<Uuid, Recipient<WsMessage>>,
+    pub users: HashMap<Uuid, Recipient<WsMessage>>,
 }
 
 impl Actor for WebsocketConnections {

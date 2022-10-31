@@ -21,11 +21,13 @@ async fn index() -> Result<NamedFile> {
 async fn main() -> std::io::Result<()> {
     env_logger::init_from_env(Env::default().default_filter_or("info"));
 
-    let containers = Data::new(Containers {
-        containers: Mutex::new(Vec::new())
-    });
     let ws_connections = Data::new(WebsocketConnections {
         users: Default::default()
+    }.start());
+
+    let containers = Data::new(Containers {
+        containers: Mutex::new(Vec::new()),
+        connections: ws_connections.get_ref().clone(),
     }.start());
 
     HttpServer::new(move || {
