@@ -1,7 +1,5 @@
 import {Component, Input, OnInit} from '@angular/core';
-import {ContainerGet} from "./container";
-import {HttpClient} from "@angular/common/http";
-import {Observable} from "rxjs";
+import {ContainerGet} from "../container";
 
 @Component({
     selector: 'container',

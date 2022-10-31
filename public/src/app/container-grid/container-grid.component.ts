@@ -1,7 +1,7 @@
 import {Component, OnInit} from '@angular/core';
-import {Observable} from "rxjs";
-import {ContainerGet} from "../container/container";
 import {HttpClient} from "@angular/common/http";
+import {AddContainerWS, ContainerGet, MessageWS} from "../container";
+import {environment} from "../../environments/environment";
 
 @Component({
     selector: 'container-grid',
@@ -10,12 +10,39 @@ import {HttpClient} from "@angular/common/http";
 })
 export class ContainerGridComponent implements OnInit {
 
-    containers: Observable<ContainerGet[]> = new Observable<ContainerGet[]>()
+    containers: ContainerGet[] = []
 
     constructor(private http: HttpClient) {
     }
 
     ngOnInit(): void {
-        this.containers = this.http.get<ContainerGet[]>("http://localhost:8080/containers");
+
+        let webSocket: WebSocket;
+
+        if (environment.wsDomain == undefined) {
+            webSocket = new WebSocket("ws://" + window.location.host + "/ws");
+        } else {
+            webSocket = new WebSocket(environment.wsDomain);
+        }
+
+        webSocket.addEventListener("open", () => {
+            webSocket.addEventListener("message", (msg) => {
+                let data = JSON.parse(msg.data) as MessageWS;
+
+                switch (data.mode) {
+                    case "new": {
+                        let request: AddContainerWS = data.data;
+
+                        this.containers.push({
+                            name: request.name
+                        })
+
+                    }
+                }
+            })
+        })
+        this.http.get<ContainerGet[]>(environment.domain + "/containers").subscribe((data) => {
+            this.containers = data;
+        });
     }
 }

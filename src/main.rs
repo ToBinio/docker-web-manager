@@ -1,6 +1,8 @@
 mod container;
+mod websocket;
 
 use std::sync::Mutex;
+use actix::Actor;
 use actix_cors::Cors;
 use actix_files::{Files, NamedFile};
 use actix_web::{App, get, HttpServer, Result};
@@ -8,6 +10,7 @@ use actix_web::middleware::Logger;
 use actix_web::web::Data;
 use env_logger::Env;
 use crate::container::{add_container, Containers, get_all_containers};
+use crate::websocket::websocket::{start_connection, WebsocketConnections};
 
 #[get("/")]
 async fn index() -> Result<NamedFile> {
@@ -21,6 +24,9 @@ async fn main() -> std::io::Result<()> {
     let containers = Data::new(Containers {
         containers: Mutex::new(Vec::new())
     });
+    let ws_connections = Data::new(WebsocketConnections {
+        users: Default::default()
+    }.start());
 
     HttpServer::new(move || {
         let cors = Cors::permissive();
@@ -29,7 +35,9 @@ async fn main() -> std::io::Result<()> {
             .wrap(cors)
             .wrap(Logger::default())
             .app_data(containers.clone())
+            .app_data(ws_connections.clone())
             .service(index)
+            .service(start_connection)
             .service(get_all_containers)
             .service(add_container)
             .service(Files::new("/", "./public/dist/public").show_files_listing())
