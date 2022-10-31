@@ -1,6 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {HttpClient} from "@angular/common/http";
-import {BasicContainerPost} from "../container/container";
+import {BasicContainerPost} from "../container";
 
 @Component({
     selector: 'container-add',
