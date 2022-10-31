@@ -1,5 +1,5 @@
 import {Component, Input, OnInit} from '@angular/core';
-import {ContainerGet} from "../container";
+import {Container} from "../container";
 
 @Component({
     selector: 'container',
@@ -8,7 +8,7 @@ import {ContainerGet} from "../container";
 })
 export class ContainerComponent implements OnInit {
 
-    @Input() container: ContainerGet | undefined = undefined
+    @Input() container: Container | undefined = undefined
 
     constructor() {
     }

@@ -20,7 +20,7 @@ pub async fn start_connection(req: HttpRequest, stream: Payload, connections: Da
 }
 
 pub struct WebsocketConnections {
-    pub(crate) users: HashMap<Uuid, Recipient<WsMessage>>,
+    pub users: HashMap<Uuid, Recipient<WsMessage>>,
 }
 
 impl Actor for WebsocketConnections {
@@ -71,7 +71,7 @@ impl WebsocketConnection {
     fn hb(&self, ctx: &mut WebsocketContext<Self>) {
         ctx.run_interval(HEARTBEAT_INTERVAL, |connection, ctx| {
             if Instant::now().duration_since(connection.hb) > CLIENT_TIMEOUT {
-                println!("user {} disconnected due heartbeat", connection.id.to_string());
+                println!("user {} disconnected due heartbeat", connection.id);
 
                 connection.connections.do_send(Disconnect {
                     id: connection.id,

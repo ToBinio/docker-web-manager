@@ -1,5 +1,6 @@
 <div *ngIf="container !== undefined; else error">
     <h1>{{container.name}}</h1>
+    <p>{{container.state}}</p>
 </div>
 
 <ng-template #error>
